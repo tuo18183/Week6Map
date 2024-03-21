@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8 />
+    <title>Week 6 Map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <script src="power-plants.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: whitesmoke;
+            font-family: Lato, sans-serif;
+            color: #0D0000;
+        }
+        header {
+            padding: 6px 10%;
+        }
+        h1 {
+            display: inline-block;
+            margin-right: 20px;
+            color: #001323;
+        }
+        h2 {
+            display: inline-block;
+            color: #001323;
+        }
+        #map {
+            width: 80%;
+            height: 540px;
+            margin: 10px auto;
+        }
+        footer {
+            padding: 6px 10%;
+            width: 80%;
+        }
+        p {
+            font-size: 1em;
+            color: #001323;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>United States Power</h1>
+        <h2>Biomass, Geothermal, and Solar Power in the US</h2>
+    </header>
+
+    <div id='map'></div>
+
+    <footer>
+        <p> The two things I modified in my map were in accordance with Mamata Akella's "Colors should align with expectations" principle. I changed the background of my map from the bright blue/green/beige background to a dark, black and grey background. I think it
+            helps a viewer to focus more on the power plants then the information in the background. I also updated the color of my geothermal cirlce-markers from brown
+        to red; the dark brown I used previously was almost invisible on the new dark background.  </p>
+        <p>Map Authored by E.S. Moore</p>
+        <p>February 14, 2023</p>
+    </footer>
+
+    
+    <script>
+
+      var map = L.map('map', {
+          center: [36,-94],
+          zoom: 4,
+      });
+      
+      var tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+  attribution: 'Map data &copy; <a href="https://w.1652ww.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+  maxZoom: 18,
+  id: 'mapbox/streets-v11', 
+  accessToken: 'pk.eyJ1IjoidHVvMTgxODMiLCJhIjoiY2xzbW5qbjQ3MHAyMTJpbGZrdXhjb245ZSJ9.ytBZNsdFeSARGKOpIYUCNw'
+}).addTo(map);
+      
+      tiles.addTo(map);
+        
+     
+    var Biomass = L.geoJson(plants,{
+          pointToLayer: function(feature,latlng) {
+              console.log(feature.properties.fuel_source)
+              return L.circleMarker(latlng, {
+                 color: 'green',
+                 weight: 1,
+                 fillColor: 'green',
+                 fillOpacity: .5,
+                 radius: getRadius(feature.properties.capacity_mw) 
+              });   
+          },    
+    
+          filter : function(feature, layer){
+              if(feature.properties.fuel_source['Biomass']){
+                  return feature
+              };
+             // console.log(feature);
+          },
+         
+    
+    onEachFeature : function(feature,layer) {
+    layer.on('mouseover', function() {
+    layer.setStyle({
+        fillColor: 'red'
+    });
+});
+layer.on('mouseout', function() {
+    layer.setStyle({
+        fillColor: 'green'
+    });
+});    
+  
+         
+          
+          var name = feature.properties.plant_name
+          var capacity = feature.properties.capacity_mw.toLocaleString()
+          var fuel = feature.properties.fuel_source
+      
+                                                
+          
+          var popup = ("<b>"+name+"</b><br>"
+              +capacity+ " MW" + "<br>")
+                       layer.bindPopup(popup)
+          }
+          
+          
+      }).addTo(map);
+        
+      var Geothermal = L.geoJson(plants, {
+          pointToLayer: function(feature,latlng) {
+              console.log(feature.properties.fuel_source)
+              return L.circleMarker(latlng, {
+                 color: 'red',
+                 weight: 1,
+                 fillColor: 'red',
+                 fillOpacity: .5,
+                 radius: getRadius(feature.properties.capacity_mw) 
+              });   
+          },
+          
+      filter : function(feature, layer){
+              if(feature.properties.fuel_source['Geothermal']){
+                  return feature
+              };
+             console.log(feature);
+          },
+           
+    onEachFeature : function(feature,layer) {
+    layer.on('mouseover', function() {
+    layer.setStyle({
+        fillColor: 'pink'
+    });
+});
+layer.on('mouseout', function() {
+    layer.setStyle({
+        fillColor: 'pink'
+    });
+});
+
+
+        
+          
+          var name = feature.properties.plant_name
+          var capacity = feature.properties.capacity_mw.toLocaleString()
+          var fuel = feature.properties.fuel_source
+      
+                                                
+          
+          var popup = ("<b>"+name+"</b><br>"
+              +capacity+ " MW" + "<br>")
+                       layer.bindPopup(popup)
+          }
+          
+          
+      }).addTo(map);
+            var Solar = L.geoJson(plants, {
+          pointToLayer: function(feature,latlng) {
+              console.log(feature.properties.fuel_source)
+              return L.circleMarker(latlng, {
+                 color: 'orange',
+                 weight: 1,
+                 fillColor: 'orange',
+                 fillOpacity: .5,
+                 radius: getRadius(feature.properties.capacity_mw) 
+              });   
+          },
+          
+      filter : function(feature, layer){
+              if(feature.properties.fuel_source['Solar']){
+                  return feature
+              };
+             // console.log(feature);
+          },
+         
+  
+    onEachFeature : function(feature,layer) {
+    layer.on('mouseover', function() {
+    layer.setStyle({
+        fillColor: 'yellow'
+    });
+});
+layer.on('mouseout', function() {
+    layer.setStyle({
+        fillColor: 'yellow'
+    });
+});
+ //step 6  
+          
+ var name = feature.properties.plant_name
+          var capacity = feature.properties.capacity_mw.toLocaleString()
+          var fuel = feature.properties.fuel_source
+      
+                                                
+          
+          var popup = ("<b>"+name+"</b><br>"
+              +capacity+ " MW" + "<br>")
+                       layer.bindPopup(popup)
+          }
+          
+          
+      }).addTo(map);
+
+var sourceLayers = {
+    "<b style='color:green'>Biomass</b>": Biomass,
+    "<b style='color:red'>Geothermal</b>": Geothermal,
+    "<b style='color:gold'>Solar</b>": Solar
+    
+};
+    L.control.layers(null, sourceLayers, {collapsed:false} ).addTo(map); 
+
+//step 4
+        function getRadius(area){
+        var radius = Math.sqrt(area/Math.PI);
+        return radius * 1 
+    }
+
+</script>
+    
+</body>
+
+</html>
